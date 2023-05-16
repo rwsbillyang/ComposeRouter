@@ -1,5 +1,5 @@
 # ComposeRouter
-React-router-style Android Jetpack Compose Router inspired
+Android Jetpack Compose React-router-style Router inspired by react dom router
 
 ```kotlin
 class MainActivity : ComponentActivity() {
