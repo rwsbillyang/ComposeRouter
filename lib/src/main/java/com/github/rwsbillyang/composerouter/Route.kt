@@ -21,7 +21,7 @@ class Route(
     val isDefault: Boolean = false,
     val permission: List<String>? = null,
     val beforeEnter: ((from: Route, to: Route) -> Route)? = null,
-    var props: Any? = null,
+    val props: Any? = null,
     val component: ScaffoldScreen
 ) {
     override fun equals(other: Any?): Boolean {

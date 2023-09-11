@@ -39,18 +39,18 @@ private fun Content(){
         route("Home", "/", R.string.home){
             Home() //any screen
         },
-        route("Settings", "/settings", R.string.settings){
-            Settings() //any screen
-        },
         route("MyScreen1", "/screen1", R.string.screen1){
-            Screen1("screen1") //any screen
+            Screen1(it) //any screen need props pass
         },
         route("MyScreen2", "/screen2", R.string.screen2){
             Screen2()//any screen
         },
         route("MyScreen3", "/screen3", R.string.screen2){
             Screen3() //any screen
-        }
+        },
+        route("Settings", "/settings", R.string.settings){
+            Settings() //any screen
+        },
     ).Screen()
 }
 
@@ -59,27 +59,31 @@ private fun Content(){
 private fun Content2(){
     SimpleNavLayout(R.string.app_name, Router.withRoutes(
         route("Home", "/", R.string.home){ Home() },
-        route("Settings", "/settings", R.string.settings){
-            Settings() //any screen
-        },
+
         route("MyScreen1", "/screen1", R.string.screen1){
-            Screen1("screen1") //any screen
+            Screen1(it) //any screen need props pass
         },
         route("MyScreen2", "/screen2", R.string.screen2){
             Screen2()//any screen
         },
         route("MyScreen3", "/screen3", R.string.screen2){
             Screen3() //any screen
-        }
+        },
+        route("Settings", "/settings", R.string.settings){
+        Settings() //any screen
+    },
     ))
 }
+
 @Composable
 fun Home() {
     Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
         Button(onClick = { Router.navByName("Settings") }) {
             Text(text = "Settings")
         }
-        Button(onClick = { Router.navByPath("/screen1") }) {
+
+        //pass props to screen
+        Button(onClick = { Router.navByPath("/screen1", "some props") }) {
             Text(text = "screen1")
         }
         Button(onClick = { Router.navByName("MyScreen2") }) {
@@ -95,9 +99,10 @@ fun Settings() {
     Text(text = "Settings Screen")
 }
 
+//need receive props
 @Composable
-fun Screen1(name: String) {
-    Text(text = "Hello $name")
+fun Screen1(call: ScreenCall) {
+    Text(text = "Hello, ${call.props}")
 }
 
 @Composable

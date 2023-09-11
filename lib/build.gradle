@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         minSdk 21
-        targetSdk 32
+        targetSdk 33
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -75,7 +75,7 @@ afterEvaluate {// components.release 只有在配置完成之后，才能拿到�
                 artifact sourceJar // 上传源码
                 groupId = "com.github.rwsbillyang"
                 artifactId = "composerouter"
-                version = "1.0.0"
+                version = "1.0.1"
             }
         }
     }

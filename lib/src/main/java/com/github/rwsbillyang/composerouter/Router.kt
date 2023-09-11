@@ -17,6 +17,7 @@ object Router{
     private var _currentRoute = mutableStateOf(Route("Empty","/null", component = ScaffoldScreen(@Composable {})))
     val currentRoute: Route
         get() = _currentRoute.value
+    var _currentProps: Any? = null
 
     fun withPathMather(mather: PathMather) {pathMather = mather}
 
@@ -75,11 +76,12 @@ object Router{
 
         val r = route.beforeEnter?.let { it(_currentRoute.value, route) }?: route
 
-        r.props = props
+
 
         routeHistory.remove(r)
         routeHistory.add(r)
 
+        _currentProps = props
         _currentRoute.value = r
     }
 
@@ -111,7 +113,9 @@ object Router{
         Log.d("Router", "Router stack: ${routeHistory.joinToString(" -> ") { it.name }}")
 
         //TODO 从上面的navByPath中解析出parameters和query参数，构建ScreenCall
-        val call = ScreenCall(_currentRoute.value, paddingValues)
+        val call = ScreenCall(_currentRoute.value, _currentProps?:_currentRoute.value.props, paddingValues)
         _currentRoute.value.component.content(call)
+        _currentProps = null
+
     }
 }

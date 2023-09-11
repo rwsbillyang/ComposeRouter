@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
  * */
 class ScreenCall(
     val route: Route,
+    val props: Any?,
     val scaffoldPadding: PaddingValues = PaddingValues(),
     val parameters: Map<String, String> = mutableMapOf(),
     val query: Map<String, String> = mutableMapOf()
