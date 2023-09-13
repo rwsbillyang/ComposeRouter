@@ -19,8 +19,9 @@ class Route(
     val path: String,
     val titleId: Int? = null, //scaffold context
     val isDefault: Boolean = false,
+    val skipHistoryStack: Boolean = false,
     val permission: List<String>? = null,
-    val beforeEnter: ((from: Route, to: Route) -> Route)? = null,
+    val beforeEnter: ((from: Route?, to: Route) -> Route)? = null,
     val props: Any? = null,
     val component: ScaffoldScreen
 ) {
@@ -50,13 +51,17 @@ fun route(
     name: String,
     path: String,
     titleId: Int? = null,
+    isDefault: Boolean = false,
+    skipHistoryStack: Boolean = false,
     component: ScaffoldScreen,
-) = Route(name, path, titleId, component = component)
+) = Route(name, path, titleId, isDefault,skipHistoryStack, component = component)
 
 fun route(
     name: String,
     path: String,
     titleId: Int? = null,
+    isDefault: Boolean = false,
+    skipHistoryStack: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable (call: ScreenCall) -> Unit
-) = Route(name, path, titleId, component =  ScaffoldScreen(content, actions))
+) = Route(name, path, titleId, isDefault, skipHistoryStack,  component =  ScaffoldScreen(content, actions))

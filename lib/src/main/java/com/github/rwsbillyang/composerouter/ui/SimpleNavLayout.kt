@@ -1,4 +1,5 @@
-package com.github.rwsbillyang.composerouter.example
+package com.github.rwsbillyang.composerouter.ui
+
 
 import android.app.Activity
 import androidx.compose.foundation.layout.WindowInsets
@@ -6,11 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
-
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,11 +17,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.github.rwsbillyang.composerouter.Router
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimpleNavLayout(
     appNameResId: Int,
-    router: Router,
     modifier: Modifier = Modifier,
     bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
@@ -38,12 +35,13 @@ fun SimpleNavLayout(
     val navIcon by remember(Router.currentRoute) {
         mutableStateOf(if(Router.isLast()) Icons.Filled.Close else Icons.Filled.ArrowBack)
     }
+
     val ctx =  LocalContext.current
     Scaffold(modifier,  {
         TopAppBar(
             title = {
                 Text(
-                    stringResource(router.currentRoute.titleId?: appNameResId),
+                    stringResource(Router.currentRoute?.titleId?: appNameResId),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -57,9 +55,9 @@ fun SimpleNavLayout(
                     Icon(navIcon, contentDescription = "back")
                 }
             } ,
-            actions = router.currentRoute.component.actions
+            actions = Router.currentRoute?.component?.actions?:{}
         )
     },bottomBar, snackbarHost, floatingActionButton, floatingActionButtonPosition, containerColor, contentColor, contentWindowInsets){ padding ->
-        router.Screen(padding)
+        Router.Screen(padding)
     }
 }

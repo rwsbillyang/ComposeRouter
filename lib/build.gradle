@@ -43,10 +43,11 @@ dependencies {
     implementation "androidx.compose.runtime:runtime:$compose_version"
     implementation "androidx.compose.foundation:foundation:$compose_version"
 
-   // implementation 'androidx.compose.material3:material3:1.0.1'
-   // implementation 'androidx.activity:activity-compose:1.4.0'
+    compileOnly "androidx.compose.ui:ui:$compose_version"
+    compileOnly 'androidx.activity:activity-compose:1.7.0'
+    compileOnly 'androidx.compose.material3:material3:1.1.0'
 
-    //implementation "androidx.compose.ui:ui:$compose_version"
+
     //implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
 //    implementation 'androidx.compose.material3:material3:1.0.1'
 //    testImplementation 'junit:junit:4.13.2'
@@ -75,7 +76,7 @@ afterEvaluate {// components.release 只有在配置完成之后，才能拿到�
                 artifact sourceJar // 上传源码
                 groupId = "com.github.rwsbillyang"
                 artifactId = "composerouter"
-                version = "1.0.1"
+                version = "1.1.0"
             }
         }
     }

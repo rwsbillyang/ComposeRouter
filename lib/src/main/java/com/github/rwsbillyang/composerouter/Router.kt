@@ -9,19 +9,20 @@ import androidx.compose.runtime.mutableStateOf
 
 
 object Router{
+    var TAG = "Router"
     private val AllRoutesMap = mutableMapOf<String, Route>()
 
     private val routeHistory = mutableListOf<Route>()
     private var pathMather: PathMather = EqualPathMather()
 
-    private var _currentRoute = mutableStateOf(Route("Empty","/null", component = ScaffoldScreen(@Composable {})))
-    val currentRoute: Route
+    private var _currentRoute = mutableStateOf<Route?>(null)
+    val currentRoute: Route?
         get() = _currentRoute.value
     var _currentProps: Any? = null
 
     fun withPathMather(mather: PathMather) {pathMather = mather}
 
-    fun withRoutes(vararg routes: Route): Router{
+    fun addRoutes(vararg routes: Route){
         var firstDefault: Route? = null
         var secondDefault: Route? = null
         routes.forEach {
@@ -44,9 +45,9 @@ object Router{
             routes[0]
         }
 
-        nav(r)
+        if(currentRoute == null) nav(r)
 
-        return this
+        Log.d(TAG, "${routes.size} routes added in addRoutes")
     }
 
 
@@ -69,31 +70,45 @@ object Router{
 
     fun nav(route: Route?, props: Any? = null){
         if(route == null){
-            Log.w("Router", "Route not exist?")
+            Log.w(TAG, "Route not exist?")
             return
         }
         //TODO: check route permission
 
         val r = route.beforeEnter?.let { it(_currentRoute.value, route) }?: route
 
-
-
         routeHistory.remove(r)
-        routeHistory.add(r)
+        if(!r.skipHistoryStack){
+            routeHistory.add(r)
+        }
 
         _currentProps = props
         _currentRoute.value = r
+
+        Log.d(TAG, "nav to route=${r.name}")
     }
 
-    fun isLast() = routeHistory.size == 1
+    fun removeRoute(name: String){
+        routeHistory.forEach{
+            if(it.name == name){
+                routeHistory.remove(it)
+            }
+        }
+    }
+
+    fun isLast() = routeHistory.size <= 1
 
     fun back(): Boolean{
-        return if(routeHistory.size <= 1){
-            //exit
-            Log.d("Router", "Router: exit...")
+        return if(routeHistory.size <= 1){//exit
+            //release all routes and  memory
+            AllRoutesMap.clear()
+            routeHistory.clear()
+            _currentRoute.value = null
+
+            Log.d(TAG, "Router: exit, clear and release all done")
             false
         }else{
-            Log.d("Router", "Router: back one")
+            Log.d(TAG, "Router: back one")
             routeHistory.removeLast()
             _currentRoute.value = routeHistory.last()
             true
@@ -110,12 +125,16 @@ object Router{
 
     @Composable
     fun Screen(paddingValues: PaddingValues = PaddingValues()){
-        Log.d("Router", "Router stack: ${routeHistory.joinToString(" -> ") { it.name }}")
+        Log.d(TAG, "ShowScreen: Router stack=${routeHistory.joinToString(" -> ") { it.name }}, currentRoute=${_currentRoute.value?.name}")
 
         //TODO 从上面的navByPath中解析出parameters和query参数，构建ScreenCall
-        val call = ScreenCall(_currentRoute.value, _currentProps?:_currentRoute.value.props, paddingValues)
-        _currentRoute.value.component.content(call)
-        _currentProps = null
+        if(_currentRoute.value != null){
+            val call = ScreenCall(currentRoute!!, _currentProps?:currentRoute?.props, paddingValues)
+            _currentProps = null
+            currentRoute!!.component.content(call)
+        }else{
+            Log.d(TAG, "No current route, do nothing")
+        }
 
     }
 }
