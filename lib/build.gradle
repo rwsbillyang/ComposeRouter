@@ -1,16 +1,16 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.android.library
     id 'maven-publish'
 }
 
 android {
     namespace 'com.github.rwsbillyang.composerouter'
-    compileSdk 33
+    compileSdk libs.versions.compileSdkVersion.get().toInteger() //kts: toInt()
 
     defaultConfig {
         minSdk 21
-        targetSdk 33
+        targetSdk libs.versions.targetSdkVersion.get().toInteger() //kts: toInt()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -33,51 +33,63 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.3'
+        kotlinCompilerExtensionVersion libs.versions.composeVersion.get()
     }
 }
 
 dependencies {
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.compose.runtime
+    implementation libs.androidx.compose.foundation
 
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation "androidx.compose.runtime:runtime:$compose_version"
-    implementation "androidx.compose.foundation:foundation:$compose_version"
-
-    compileOnly "androidx.compose.ui:ui:$compose_version"
-    compileOnly 'androidx.activity:activity-compose:1.7.0'
-    compileOnly 'androidx.compose.material3:material3:1.1.0'
-
-
-    //implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-//    implementation 'androidx.compose.material3:material3:1.0.1'
-//    testImplementation 'junit:junit:4.13.2'
-//    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
-//    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-//    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
-//    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    compileOnly libs.androidx.compose.ui
+    compileOnly libs.androidx.activity.compose //RoutableActivity
+    compileOnly libs.androidx.compose.material // SimpleNavLayout
+    compileOnly libs.androidx.compose.material3
+    compileOnly libs.androidx.compose.material3.window.sizeclass
 }
 
-//增加上传源码的task
-task sourceJar(type: Jar) {
-    from android.sourceSets.main.java.getSrcDirs() // 源码路径
-    archiveClassifier = "sources"
-}
 
-afterEvaluate {// components.release 只有在配置完成之后，才能拿到值
+//增加上传源码的task Reason: Task ':lib:generateMetadataFileForMavenPublication' uses this output of task ':lib:sourceJar' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+//    Possible solutions:
+//      1. Declare task ':lib:sourceJar' as an input of ':lib:generateMetadataFileForMavenPublication'.
+//      2. Declare an explicit dependency on ':lib:sourceJar' from ':lib:generateMetadataFileForMavenPublication' using Task#dependsOn.
+//      3. Declare an explicit dependency on ':lib:sourceJar' from ':lib:generateMetadataFileForMavenPublication' using Task#mustRunAfter.
+//task sourceJar(type: Jar) {
+//    from android.sourceSets.main.java.getSrcDirs() // 源码路径
+//    archiveClassifier = "sources"
+//}
+
+// gradle assembleRelease
+// gradle publishToMavenLocal
+//https://developer.android.google.cn/studio/build/maven-publish-plugin?hl=zh-cn
+// Because the components are created only during the afterEvaluate phase, you must
+// configure your publications using the afterEvaluate() lifecycle method.
+afterEvaluate {
     publishing {
         // 配置maven 仓库
         repositories { RepositoryHandler handler ->
             handler.mavenLocal()
         }
-        publications { PublicationContainer publicationContainer ->
-            maven(MavenPublication) {
-                from components.release // 注释1:使用 Android Gradle 插件生成的组件，作为发布的内容
-                artifact sourceJar // 上传源码
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                // Applies the component for the release build variant.
+                from components.release
+
+                // You can then customize attributes of the publication as shown below.
                 groupId = "com.github.rwsbillyang"
                 artifactId = "composerouter"
-                version = "1.1.0"
+                version = libs.versions.composerouterVersion.get()
+            }
+            // Creates a Maven publication called “debug”.
+//            debug(MavenPublication) {
+//                // Applies the component for the debug build variant.
+//                from components.debug
+//
+//                groupId = 'com.example.MyLibrary'
+//                artifactId = 'final-debug'
+//                version = '1.0'
             }
         }
     }
-}

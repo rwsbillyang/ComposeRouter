@@ -131,7 +131,7 @@ object Router{
         if(_currentRoute.value != null){
             val call = ScreenCall(currentRoute!!, _currentProps?:currentRoute?.props, paddingValues)
             _currentProps = null
-            currentRoute!!.component.content(call)
+            currentRoute!!.screen.content(call)
         }else{
             Log.d(TAG, "No current route, do nothing")
         }

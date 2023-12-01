@@ -1,16 +1,16 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.android.application
 }
 
 android {
     namespace 'com.github.rwsbillyang.composerouter.example'
-    compileSdk 33
+    compileSdk libs.versions.compileSdkVersion.get().toInteger() //kts: toInt()
 
     defaultConfig {
         applicationId "com.github.rwsbillyang.composerouter.example"
         minSdk 21
-        targetSdk 33
+        targetSdk libs.versions.targetSdkVersion.get().toInteger() //kts: toInt()
         versionCode 1
         versionName "1.0"
 
@@ -37,7 +37,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.3'
+        kotlinCompilerExtensionVersion libs.versions.composeVersion.get()
     }
     packagingOptions {
         resources {
@@ -47,22 +47,29 @@ android {
 }
 
 dependencies {
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.compose.runtime
+    implementation libs.androidx.compose.foundation
 
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
-    implementation 'androidx.activity:activity-compose:1.7.0'
-    implementation "androidx.compose.foundation:foundation:$compose_version"
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.compose.material3:material3:1.1.0'
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.activity.compose
+    implementation libs.androidx.compose.foundation
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.ui.tooling.preview
+    implementation libs.androidx.compose.material3
+    implementation libs.androidx.compose.material3.window.sizeclass
+    //implementation libs.androidx.compose.material
+    implementation libs.androidx.activity.compose //RoutableActivity
 
+
+    debugImplementation libs.androidx.compose.ui.tooling
+    debugImplementation libs.androidx.compose.ui.test.manifest
+    androidTestImplementation libs.androidx.compose.ui.test.junit4
+
+    testImplementation libs.junit.junit
+    androidTestImplementation libs.androidx.test.ext
+    androidTestImplementation libs.androidx.test.espresso
+    
     implementation project(path: ':lib')
-
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
 }
