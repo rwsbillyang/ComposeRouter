@@ -3,31 +3,24 @@ package com.github.rwsbillyang.composerouter.nav
 
 import android.app.Activity
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.DrawerDefaults
 
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.material.DrawerDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.contentColorFor
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material.MaterialTheme
-
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -36,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.github.rwsbillyang.composerouter.Router
 import com.github.rwsbillyang.composerouter.ScaffoldScreen2
 import com.github.rwsbillyang.composerouter.ScaffoldScreen3
+import com.github.rwsbillyang.composerouter.useRouter
 
 
 /**
@@ -47,12 +41,14 @@ fun NavScaffold2(
     modifier: Modifier = Modifier
 )
 {
-    val screen = Router.currentRoute?.screen
+    val router = useRouter()
+
+    val screen = router.currentRoute?.screen
     if (screen != null){
         if(screen is ScaffoldScreen2){
             Scaffold(
                 modifier,screen.scaffoldState?: rememberScaffoldState(),
-                screen.topBar?:{ NavTopAppBar(appNameResId, screen.topBarActions) },
+                screen.topBar?:{ NavTopAppBar2(appNameResId, screen.topBarActions) },
                 screen.bottomBar,
                 screen.snackbarHost,
                 screen.floatingActionButton,
@@ -68,47 +64,52 @@ fun NavScaffold2(
                 screen.backgroundColor?:MaterialTheme.colors.background,
                 screen.contentColor?:contentColorFor(screen.backgroundColor?:MaterialTheme.colors.background))
             {
-                Router.Screen(it)
+                router.Screen(it)
+            }
+        }else if(screen is ScaffoldScreen3){
+            Log.w(Router.TAG, "You are using ScaffoldScreen3 in NavScaffold2 of material2")
+            Scaffold(modifier, topBar =  { NavTopAppBar2(appNameResId) {} })
+            {
+                router.Screen(it)
             }
         }else{
-            if(screen is ScaffoldScreen3){
-                Log.w(Router.TAG, "You are using ScaffoldScreen3 in NavScaffold2 of material2")
-            }
-            Scaffold(modifier, topBar =  { NavTopAppBar(appNameResId) {} })
-            {
-                Router.Screen(it)
-            }
-        }
-    }else{
-
-        Scaffold(modifier, topBar =  { NavTopAppBar(appNameResId) {} }){
-            Row(Modifier.padding(it).fillMaxSize(), Arrangement.Center, Alignment.CenterVertically){
-                Text("No route?")
+            if(router.currentRoute!!.useNavScaffold){
+                Scaffold(
+                    modifier,
+                    topBar = { NavTopAppBar2(appNameResId) {} })
+                {
+                    router.Screen(it)
+                }
+            }else{//某些特殊情况下，如带drawer的scaffold，自行完全定制，更方便
+                router.Screen()
             }
         }
     }
 }
 
 @Composable
-fun NavTopAppBar(appNameResId: Int, actions:  @Composable RowScope.() -> Unit){
-    val navIcon by remember(Router.currentRoute) {
-        mutableStateOf(if(Router.isLast()) Icons.Filled.Close else Icons.Filled.ArrowBack)
+fun NavTopAppBar2(appNameResId: Int, actions:  @Composable RowScope.() -> Unit){
+    val ctx = LocalContext.current
+    val router = useRouter()
+
+    val navIcon by remember(router.currentRoute) {
+        mutableStateOf(if(router.isLast()) Icons.Filled.Close else Icons.AutoMirrored.Filled.ArrowBack)
     }
 
-    val ctx =  LocalContext.current
     TopAppBar(
         title = {
+            val currentRoute = router.currentRoute
             Text(
-                stringResource(Router.currentRoute?.titleId?: appNameResId),
+                (currentRoute?.ctxMap?.get("title") as String?)?: currentRoute?.titleId?.let{stringResource(it)} ?: currentRoute?.name?:stringResource(appNameResId),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
         },
         navigationIcon = {
             IconButton(onClick = {
-                if(Router.isLast()) {
+                if(router.isLast()) {
                     (ctx as Activity).finish()
-                } else Router.back()
+                } else router.back()
             }) {
                 Icon(navIcon, contentDescription = "back")
             }

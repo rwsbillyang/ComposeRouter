@@ -43,28 +43,17 @@ dependencies {
     implementation libs.androidx.compose.foundation
 
     compileOnly libs.androidx.compose.ui
-    compileOnly libs.androidx.activity.compose //RoutableActivity
-    compileOnly libs.androidx.compose.material // SimpleNavLayout
-    compileOnly libs.androidx.compose.material3
+    compileOnly libs.androidx.activity.compose //RoutableActivity need
+    compileOnly libs.androidx.compose.material // NavScaffold2 need
+    compileOnly libs.androidx.compose.material3 // NavScaffold3 need
     compileOnly libs.androidx.compose.material3.window.sizeclass
 }
 
 
-//增加上传源码的task Reason: Task ':lib:generateMetadataFileForMavenPublication' uses this output of task ':lib:sourceJar' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
-//    Possible solutions:
-//      1. Declare task ':lib:sourceJar' as an input of ':lib:generateMetadataFileForMavenPublication'.
-//      2. Declare an explicit dependency on ':lib:sourceJar' from ':lib:generateMetadataFileForMavenPublication' using Task#dependsOn.
-//      3. Declare an explicit dependency on ':lib:sourceJar' from ':lib:generateMetadataFileForMavenPublication' using Task#mustRunAfter.
-//task sourceJar(type: Jar) {
-//    from android.sourceSets.main.java.getSrcDirs() // 源码路径
-//    archiveClassifier = "sources"
-//}
 
-// gradle assembleRelease
+// gradle build or gradle assembleRelease
 // gradle publishToMavenLocal
 //https://developer.android.google.cn/studio/build/maven-publish-plugin?hl=zh-cn
-// Because the components are created only during the afterEvaluate phase, you must
-// configure your publications using the afterEvaluate() lifecycle method.
 afterEvaluate {
     publishing {
         // 配置maven 仓库
@@ -82,14 +71,6 @@ afterEvaluate {
                 artifactId = "composerouter"
                 version = libs.versions.composerouterVersion.get()
             }
-            // Creates a Maven publication called “debug”.
-//            debug(MavenPublication) {
-//                // Applies the component for the debug build variant.
-//                from components.debug
-//
-//                groupId = 'com.example.MyLibrary'
-//                artifactId = 'final-debug'
-//                version = '1.0'
-            }
         }
     }
+}
